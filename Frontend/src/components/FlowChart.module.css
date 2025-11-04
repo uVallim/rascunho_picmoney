@@ -1,0 +1,14 @@
+/* Em src/components/FlowChart.module.css */
+.chartContainer {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.chartContainer h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem; /* Mais espaço para o gráfico */
+  color: #333;
+}

@@ -1,0 +1,30 @@
+/* Em src/components/Navbar.module.css */
+.navbar {
+  /* Esta classe já está sendo usada para o Navbar no topo */
+  background: #333; /* Fundo escuro */
+  padding: 1rem;
+  /* Texto branco para a Navbar do topo */
+  color: white; 
+  margin-bottom: 0; /* Remove a margem para ela ficar colada no topo */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra para destacar */
+  display: flex; /* Para alinhar o conteúdo */
+  align-items: center; /* Centrar verticalmente */
+}
+
+.navbar h1 {
+  margin: 0; /* Remove a margem padrão do h1 dentro do Navbar */
+  font-size: 1.5rem;
+}
+
+/* Os links do Navbar que definimos antes, mas que não estamos usando mais */
+/*
+.link {
+  color: white;
+  margin: 0 1rem;
+  text-decoration: none;
+}
+.link:hover {
+  color: #aed8ff;
+  text-decoration: underline;
+}
+*/

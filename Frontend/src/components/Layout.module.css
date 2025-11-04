@@ -1,0 +1,36 @@
+/* Em src/components/Layout.module.css */
+.layoutContainer {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "sidebar navbar"
+    "sidebar main";
+  height: 100vh;
+  /* Garante que o fundo do container principal seja claro */
+  background-color: var(--color-background-light); 
+}
+
+.navbar {
+  grid-area: navbar;
+  /* Cor de fundo para a navbar no topo */
+  background-color: #333; /* Fundo escuro para a Navbar do topo */
+  color: white; /* Texto branco na Navbar do topo */
+  padding: 1rem; /* Adiciona algum padding */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sidebar {
+  grid-area: sidebar;
+  /* O componente Sidebar já tem seu próprio scroll */
+}
+
+.mainContent {
+  grid-area: main;
+  padding: 2rem;
+  overflow-y: auto;
+  /* Fundo branco explícito para o conteúdo principal */
+  background-color: #ffffff; 
+  /* Garante que o texto dentro do mainContent seja visível */
+  color: var(--color-text-primary); 
+}
