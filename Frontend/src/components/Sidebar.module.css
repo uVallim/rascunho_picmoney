@@ -1,63 +1,48 @@
 /* Em src/components/Sidebar.module.css */
 .sidebar {
-  grid-area: sidebar; /* Define a área no grid do Layout */
-  background-color: #1e1e2d; /* Cor escura para a sidebar */
-  color: #a9a9b8;
+  grid-area: sidebar;
+  background-color: var(--color-sidebar-bg);
+  color: var(--color-text-sidebar);
   padding: 1rem;
-  height: 100vh; /* Ocupa 100% da altura da tela */
+  height: 100vh;
+  overflow-y: auto;
 }
 
-.sidebarList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.sidebar h2 {
+  text-align: center;
+  color: #ffffff; /* Título principal sempre branco */
+  margin-bottom: 5px;
+  font-size: 1.8rem;
 }
 
-.sidebarList li {
-  margin-bottom: 1rem;
+.clientName {
+  color: var(--color-text-sidebar);
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: -5px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border-sidebar);
 }
 
 .link {
-  color: #a9a9b8;
+  color: var(--color-text-sidebar);
   text-decoration: none;
   font-size: 1.1rem;
   display: block;
   padding: 0.5rem;
   border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .link:hover,
 .linkActive {
-  background-color: #5d5d6d;
+  background-color: var(--color-sidebar-link-hover);
   color: #fff;
-}
-/* Em src/components/Sidebar.module.css */
-
-/* ... (Estilos existentes como .sidebar, .sidebarList, .link) ... */
-
-/* --- ADICIONE ESTES ESTILOS --- */
-
-.sidebar h2 {
-  text-align: center;
-  color: #ffffff;
-  margin-bottom: 5px; /* Menos espaço abaixo do título */
-  font-size: 1.8rem;
-}
-
-.clientName {
-  color: #a9a9b8;
-  font-size: 0.9rem;
-  text-align: center;
-  margin-top: -5px; /* Puxa para mais perto do título */
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  /* Cria uma linha sutil abaixo do nome */
-  border-bottom: 1px solid #444; 
 }
 
 .navSeparator {
-  /* Apenas uma linha para separar as seções de navegação */
   height: 1px;
-  background-color: #444;
+  background-color: var(--color-border-sidebar);
   margin: 1rem 0;
 }

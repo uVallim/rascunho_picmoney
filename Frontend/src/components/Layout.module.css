@@ -7,30 +7,26 @@
     "sidebar navbar"
     "sidebar main";
   height: 100vh;
-  /* Garante que o fundo do container principal seja claro */
-  background-color: var(--color-background-light); 
+  background-color: var(--color-background);
+  transition: background-color 0.2s ease;
 }
 
 .navbar {
   grid-area: navbar;
-  /* Cor de fundo para a navbar no topo */
-  background-color: #333; /* Fundo escuro para a Navbar do topo */
-  color: white; /* Texto branco na Navbar do topo */
-  padding: 1rem; /* Adiciona algum padding */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: var(--color-navbar-bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: background-color 0.2s ease;
 }
 
 .sidebar {
   grid-area: sidebar;
-  /* O componente Sidebar já tem seu próprio scroll */
+  /* O componente Sidebar tem seu próprio estilo de fundo */
 }
 
 .mainContent {
   grid-area: main;
   padding: 2rem;
   overflow-y: auto;
-  /* Fundo branco explícito para o conteúdo principal */
-  background-color: #ffffff; 
-  /* Garante que o texto dentro do mainContent seja visível */
-  color: var(--color-text-primary); 
+  /* O fundo do mainContent é o fundo geral do body */
+  background-color: var(--color-background);
 }
