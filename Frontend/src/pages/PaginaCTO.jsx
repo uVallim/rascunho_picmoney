@@ -1,7 +1,8 @@
 // Em src/pages/PaginaCTO.jsx
 import React, { useState, useEffect } from 'react';
 import FlowChart from '../components/FlowChart';
-import AdoptionChart from '../components/AdoptionChart'; // 1. IMPORTE O NOVO GRÁFICO
+import AdoptionChart from '../components/AdoptionChart';
+import AgeAdoptionChart from '../components/AgeAdoptionChart'; // 1. IMPORTE O NOVO GRÁFICO
 import styles from './Dashboard.module.css'; 
 
 function PaginaCTO() {
@@ -53,21 +54,25 @@ function PaginaCTO() {
       <h1>Visão do CTO</h1>
       <p>Foco no fluxo de usuários, adoção do app e perfil técnico.</p>
       
-      {/* 2. ADICIONAMOS O GRID DE GRÁFICOS (o mesmo da pág. CEO) */}
+      {/* Grid com os dois primeiros gráficos */}
       <div className={styles.chartGrid}>
         <FlowChart
           title="Fluxo de Pedestres por Hora"
           data={pedestresData}
         />
-        {/* 3. ADICIONE O NOVO GRÁFICO AQUI */}
         <AdoptionChart
           title="Taxa de Adoção do App (Pedestres)"
           data={pedestresData}
         />
       </div>
-      
-      {/* Aqui adicionaremos o gráfico de Idade x Adoção */}
 
+      {/* 2. ADICIONE O NOVO GRÁFICO AQUI */}
+      {/* (Ele ficará em uma nova linha, em largura total) */}
+      <AgeAdoptionChart
+        title="Adoção do App por Faixa Etária"
+        data={pedestresData}
+      />
+      
     </div>
   );
 }

@@ -8,19 +8,17 @@ const port = 3000;
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
-const iconv = require('iconv-lite'); // *** NOSSO NOVO "TRADUTOR" ***
+// Importamos o 'tradutor' de encoding
+const iconv = require('iconv-lite'); 
 
-// --- Função Auxiliar para Ler CSV ---
+// --- Função Auxiliar (A mesma que já temos) ---
 const readCsvFile = (filename) => {
   return new Promise((resolve, reject) => {
     const results = [];
     const filePath = path.join(__dirname, 'data', filename);
 
-    // *** A CORREÇÃO DE ENCODING FINAL ***
-    fs.createReadStream(filePath) // 1. Lê os bytes brutos (sem encoding)
-      // 2. "Traduz" o stream do formato Windows para UTF-8
-      .pipe(iconv.decodeStream('latin1'))
-      // 3. Envia o stream limpo para o parser
+    fs.createReadStream(filePath)
+      .pipe(iconv.decodeStream('latin1')) // Decodifica de latin1 (Windows)
       .pipe(csv({
         separator: ';',
         mapHeaders: ({ header }) => header.replace(/\ufeff/g, '').trim()
@@ -29,12 +27,10 @@ const readCsvFile = (filename) => {
         results.push(data);
       })
       .on('end', () => {
-        // O filtro continua o mesmo
         const cleanResults = results.filter(row => {
           const firstValue = Object.values(row)[0];
           return firstValue && !String(firstValue).startsWith('Pgina');
         });
-
         console.log(`[CSV Reader] ${filename}: ${cleanResults.length} linhas lidas.`);
         resolve(cleanResults);
       })
@@ -49,18 +45,7 @@ const readCsvFile = (filename) => {
 app.use(cors());
 app.use(express.json());
 
-// --- Rotas ---
-// (As 4 rotas de API continuam exatamente iguais)
-
-app.get('/api/mensagem', (req, res) => {
-  res.json({ message: 'Olá do Backend Express!' });
-});
-
-app.post('/api/enviar', (req, res) => {
-  const { dadosDoFrontend } = req.body;
-  console.log('Recebido do frontend:', dadosDoFrontend);
-  res.status(200).json({ status: 'Sucesso!', recebido: dadosDoFrontend });
-});
+// --- ROTAS DE DADOS BÁSICAS (As 4 que já tínhamos) ---
 
 app.get('/api/players', async (req, res) => {
   try {
@@ -70,7 +55,6 @@ app.get('/api/players', async (req, res) => {
     res.status(500).json({ error: 'Falha ao ler dados de players.' });
   }
 });
-
 app.get('/api/cupons', async (req, res) => {
   try {
     const cupons = await readCsvFile('cupons.csv');
@@ -79,7 +63,6 @@ app.get('/api/cupons', async (req, res) => {
     res.status(500).json({ error: 'Falha ao ler dados de cupons.' });
   }
 });
-
 app.get('/api/lojas', async (req, res) => {
   try {
     const lojas = await readCsvFile('lojas.csv');
@@ -88,7 +71,6 @@ app.get('/api/lojas', async (req, res) => {
     res.status(500).json({ error: 'Falha ao ler dados de lojas.' });
   }
 });
-
 app.get('/api/pedestres', async (req, res) => {
   try {
     const pedestres = await readCsvFile('pedestres.csv');
@@ -97,6 +79,64 @@ app.get('/api/pedestres', async (req, res) => {
     res.status(500).json({ error: 'Falha ao ler dados de pedestres.' });
   }
 });
+
+// --- *** NOSSA NOVA ROTA DE "RELACIONAMENTO" *** ---
+app.get('/api/valor-por-bairro', async (req, res) => {
+  try {
+    console.log('[API /valor-por-bairro] Iniciando cruzamento de dados...');
+
+    // 1. Carrega os dois arquivos em paralelo
+    const [players, cupons] = await Promise.all([
+      readCsvFile('players.csv'),
+      readCsvFile('cupons.csv')
+    ]);
+
+    // 2. Cria um "mapa" (dicionário) para consulta rápida
+    //    mapaPlayers = { 'celular_123': 'Bairro A', 'celular_456': 'Bairro B' }
+    const playerMap = new Map();
+    for (const player of players) {
+      if (player.celular && player.bairro_residencial) {
+        playerMap.set(player.celular, player.bairro_residencial);
+      }
+    }
+    console.log(`[API /valor-por-bairro] Mapa de ${playerMap.size} players criado.`);
+
+    // 3. Processa os cupons e soma os valores por bairro
+    const bairroCounts = {}; // { 'Bairro A': 150.50, 'Bairro B': 200.00 }
+
+    for (const cupom of cupons) {
+      // Encontra o bairro do player usando o 'celular' do cupom
+      const bairro = playerMap.get(cupom.celular);
+      
+      // Converte o 'valor_cupom' (ex: "15,50") para um número (ex: 15.50)
+      const valor = parseFloat(cupom.valor_cupom.replace(',', '.'));
+
+      // Se achamos o bairro E o valor é um número válido...
+      if (bairro && !isNaN(valor)) {
+        if (!bairroCounts[bairro]) {
+          bairroCounts[bairro] = 0;
+        }
+        bairroCounts[bairro] += valor;
+      }
+    }
+
+    // 4. Formata os dados para o gráfico
+    //    [ { name: 'Bairro A', total: 150.50 }, ... ]
+    const chartData = Object.keys(bairroCounts).map(bairroName => ({
+      name: bairroName,
+      total: parseFloat(bairroCounts[bairroName].toFixed(2)) // Arredonda
+    }))
+    .sort((a, b) => b.total - a.total); // Ordena do maior para o menor
+
+    console.log(`[API /valor-por-bairro] Dados cruzados. Enviando ${chartData.length} bairros.`);
+    res.json(chartData);
+
+  } catch (error) {
+    console.error('[API /valor-por-bairro] Erro:', error);
+    res.status(500).json({ error: 'Falha ao cruzar dados.' });
+  }
+});
+
 
 // --- Iniciar o Servidor ---
 app.listen(port, () => {
