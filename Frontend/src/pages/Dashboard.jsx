@@ -1,23 +1,25 @@
 // Em src/pages/Dashboard.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Card from '../components/Card';
 import DataTable from '../components/DataTable';
 import FlowChart from '../components/FlowChart';
-import CategoryChart from '../components/CategoryChart'; // 1. IMPORTE O NOVO GRÁFICO
+import CategoryChart from '../components/CategoryChart';
 import styles from './Dashboard.module.css';
 
+const formatAsCurrency = (value) => {
+  return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
 function Dashboard() {
-  // Estados para os dados
+  // Estados
   const [playersData, setPlayersData] = useState([]);
   const [cuponsData, setCuponsData] = useState([]);
   const [lojasData, setLojasData] = useState([]);
   const [pedestresData, setPedestresData] = useState([]);
-
-  // Estados de controle
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // O 'loading' principal
   const [error, setError] = useState(null);
 
-  // useEffect para buscar os dados
+  // useEffect (fetch dos 4 dados)
   useEffect(() => {
     const fetchData = (url) => 
       fetch(url).then((res) => {
@@ -34,37 +36,47 @@ function Dashboard() {
       fetchData('http://localhost:3000/api/pedestres'),
     ])
       .then(([players, cupons, lojas, pedestres]) => {
-        
-        // 2. LIMPAMOS o 'console.log("RAIO-X")' daqui
-        
         setPlayersData(players);
         setCuponsData(cupons);
         setLojasData(lojas);
         setPedestresData(pedestres);
-        setLoading(false);
+        setLoading(false); // SÓ PARA DE CARREGAR QUANDO TUDO CHEGAR
       })
       .catch((err) => {
         console.error('Erro ao buscar dados:', err);
         setError(err.message);
         setLoading(false);
       });
-  }, []); // Array vazio, roda só uma vez
+  }, []);
 
-  // --- Lógica de Renderização ---
+  // useMemo (Cálculo dos KPIs)
+  const kpis = useMemo(() => {
+    if (cuponsData.length === 0) {
+      return { receitaBrutaTotal: 0, ticketMedio: 0 };
+    }
+    const receitaBrutaTotal = cuponsData.reduce((sum, row) => {
+      const valor = parseFloat(String(row.valor_cupom).replace(',', '.'));
+      return sum + (isNaN(valor) ? 0 : valor);
+    }, 0);
+    const totalTransacoes = cuponsData.length;
+    const ticketMedio = receitaBrutaTotal / totalTransacoes;
+    return { receitaBrutaTotal, ticketMedio };
+  }, [cuponsData]);
+
+  // --- Lógica de Renderização (AGORA VAI FUNCIONAR!) ---
 
   if (loading) {
     return (
       <div className={styles.dashboardContent}>
-        <h1>Dashboard Principal</h1>
-        <p>Carregando dados de todas as planilhas...</p>
+        <h1>Visão Geral</h1>
+        <p>Carregando KPIs principais...</p>
       </div>
     );
   }
-
   if (error) {
     return (
       <div className={styles.dashboardContent}>
-        <h1>Dashboard Principal</h1>
+        <h1>Visão Geral</h1>
         <p style={{ color: 'red' }}>Erro: {error}</p>
       </div>
     );
@@ -74,28 +86,37 @@ function Dashboard() {
   return (
     <div className={styles.dashboardContent}>
       <h1>Visão Geral</h1>
+      <p>Resumo dos principais KPIs (Indicadores-Chave de Performance) do projeto.</p>
       
-      {/* 3. ATUALIZE A CLASSE: Cards de Resumo (KPIs) */}
       <div className={styles.kpiGrid}>
-        <Card title="Total de Players Cadastrados" content={`${playersData.length} players`} />
-        <Card title="Total de Cupons Capturados" content={`${cuponsData.length} cupons`} />
-        <Card title="Total de Lojas Registradas" content={`${lojasData.length} lojas`} />
-        <Card title="Total de Pedestres (Av. Paulista)" content={`${pedestresData.length} registros`} />
+        <Card 
+          title="Receita Bruta Total (Cupons)" 
+          content={formatAsCurrency(kpis.receitaBrutaTotal)} 
+        />
+        <Card 
+          title="Ticket Médio (Cupons)" 
+          content={formatAsCurrency(kpis.ticketMedio)} 
+        />
+        <Card 
+          title="Total de Players Cadastrados" 
+          content={`${playersData.length} players`} 
+        />
+        <Card 
+          title="Total de Pedestres (Av. Paulista)" 
+          content={`${pedestresData.length} registros`} 
+        />
       </div>
 
-      {/* 4. ADICIONE A NOVA SEÇÃO: Gráficos */}
       <div className={styles.chartGrid}>
         <FlowChart 
           title="Fluxo de Pedestres por Hora"
           data={pedestresData}
         />
         <CategoryChart 
-          title="Top 10 Categorias de Cupons"
+          title="Top 10 Categorias de Cupons (por Vol.)"
           data={cuponsData}
         />
       </div>
-
-      {/* Tabela de Dados (agora por último) */}
       <DataTable
         title="Últimos Players Cadastrados (Amostra)"
         data={playersData.slice(0, 10)} 

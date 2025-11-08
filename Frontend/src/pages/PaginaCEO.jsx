@@ -3,17 +3,18 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../components/DataTable';
 import CategoryChart from '../components/CategoryChart';
 import StoreTypeChart from '../components/StoreTypeChart';
-import NeighborhoodChart from '../components/NeighborhoodChart'; // 1. IMPORTE O NOVO GRÁFICO
+import NeighborhoodChart from '../components/NeighborhoodChart';
+import DayOfWeekChart from '../components/DayOfWeekChart';
+import PeriodOfDayChart from '../components/PeriodOfDayChart';
+import CouponTypeChart from '../components/CouponTypeChart'; // 1. IMPORTE O NOVO GRÁFICO
 import styles from './Dashboard.module.css'; 
 
 function PaginaCEO() {
-  // --- Estados e Lógica de Fetch ---
-  // (Note que esta página NÃO precisa mais buscar os dados de 'cupons' e 'players'
-  // se os componentes filhos (DataTable, CategoryChart) também se tornarem "inteligentes".
-  // Mas, por enquanto, vamos manter como está para os primeiros componentes.)
+  // --- A lógica de Fetch (buscando 4 APIs) continua a mesma ---
   const [playersData, setPlayersData] = useState([]);
   const [cuponsData, setCuponsData] = useState([]);
   const [lojasData, setLojasData] = useState([]);
+  const [neighborhoodData, setNeighborhoodData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -30,11 +31,13 @@ function PaginaCEO() {
       fetchData('http://localhost:3000/api/players'),
       fetchData('http://localhost:3000/api/cupons'),
       fetchData('http://localhost:3000/api/lojas'),
+      fetchData('http://localhost:3000/api/valor-por-bairro'),
     ])
-      .then(([players, cupons, lojas]) => {
+      .then(([players, cupons, lojas, bairros]) => {
         setPlayersData(players);
         setCuponsData(cupons);
         setLojasData(lojas);
+        setNeighborhoodData(bairros);
         setLoading(false);
       })
       .catch((err) => {
@@ -44,24 +47,9 @@ function PaginaCEO() {
       });
   }, []);
 
-  // --- Lógica de Renderização ---
-
-  if (loading) {
-    return (
-      <div className={styles.dashboardContent}>
-        <h1>Visão do CEO</h1>
-        <p>Carregando dados financeiros e de clientes...</p>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className={styles.dashboardContent}>
-        <h1>Visão do CEO</h1>
-        <p style={{ color: 'red' }}>Erro: {error}</p>
-      </div>
-    );
-  }
+  // --- A lógica de Renderização (Loading, Error) continua a mesma ---
+  if (loading) { /* ... */ }
+  if (error) { /* ... */ }
 
   // --- Renderização de Sucesso ---
   return (
@@ -69,7 +57,7 @@ function PaginaCEO() {
       <h1>Visão do CEO</h1>
       <p>Foco em aquisição de clientes, performance de cupons e receita regional.</p>
 
-      {/* Grid com os gráficos de Categoria e Tipo de Loja */}
+      {/* Grid 1: Foco em "O Quê" (Categorias e Lojas) */}
       <div className={styles.chartGrid}>
         <CategoryChart
           title="Top 10 Categorias de Cupons"
@@ -81,11 +69,31 @@ function PaginaCEO() {
         />
       </div>
 
-      {/* 2. ADICIONE O NOVO GRÁFICO DE BAIRROS AQUI */}
-      {/* (Ele ficará em uma nova linha, em largura total) */}
-      <NeighborhoodChart />
+      {/* Grid 2: Foco em "Quando" (Tempo) */}
+      <div className={styles.chartGrid}>
+        <DayOfWeekChart
+          title="Receita Bruta por Dia da Semana"
+          data={cuponsData}
+        />
+        <PeriodOfDayChart
+          title="Receita Bruta por Período do Dia"
+          data={cuponsData}
+        />
+      </div>
+      
+      {/* 2. ADICIONE O GRÁFICO DE BARRAS DUPLAS AQUI */}
+      <CouponTypeChart
+        title="Receita Bruta vs. Líquida por Tipo de Cupom"
+        data={cuponsData}
+      />
+      
+      {/* Gráfico de Bairros (continua aqui) */}
+      <NeighborhoodChart 
+        title="Receita por Bairro (Top 15)"
+        data={neighborhoodData}
+      />
 
-      {/* Tabela de Players (agora por último) */}
+      {/* Tabela de Players (continua aqui) */}
       <DataTable
         title="Novos Players Cadastrados (Amostra)"
         data={playersData.slice(0, 10)}

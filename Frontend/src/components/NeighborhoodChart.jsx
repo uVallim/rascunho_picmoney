@@ -1,5 +1,5 @@
 // Em src/components/NeighborhoodChart.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styles from './NeighborhoodChart.module.css';
 import {
   BarChart,
@@ -12,69 +12,57 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-// Função para formatar o valor como Moeda (BRL)
+// Funções de formatação (continuam as mesmas)
 const formatAsCurrency = (value) => {
-  return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  if (value >= 1000000) {
+    return `R$ ${(value / 1000000).toFixed(1)}M`;
+  }
+  return `R$ ${value.toLocaleString('pt-BR')}`;
+};
+const formatTooltipCurrency = (value) => {
+  return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-function NeighborhoodChart() {
-  // (A lógica de fetch continua a mesma)
-  const [chartData, setChartData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+// 1. O componente agora recebe 'data' como prop
+function NeighborhoodChart({ title, data }) {
+  
+  // 2. Removemos toda a lógica de fetch, useState, useEffect, loading e error
 
-  useEffect(() => {
-    fetch('http://localhost:3000/api/valor-por-bairro')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.length > 0) {
-          // Pegamos o Top 15 (incluindo o #1)
-          setChartData(data.slice(0, 15));
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+  // 3. Adicionamos uma verificação de 'data'
+  if (!data || data.length === 0) {
+    return (
+      <div className={styles.chartContainer}>
+        <h2>{title}</h2>
+        <p>Sem dados de bairro para exibir.</p>
+      </div>
+    );
+  }
 
-  if (loading) { /* ... (código de 'loading' continua o mesmo) ... */ }
-  if (error) { /* ... (código de 'error' continua o mesmo) ... */ }
-
-  // Encontra o valor mínimo (exceto 0) para o eixo
-  const minDomain = Math.min(...chartData.map(d => d.total).filter(t => t > 0));
-  // Encontra o valor máximo
-  const maxDomain = Math.max(...chartData.map(d => d.total));
+  // 4. Pegamos os Top 15 dados *recebidos*
+  const chartData = data.slice(0, 15);
 
   return (
     <div className={styles.chartContainer}>
-      <h2>Receita por Bairro (Top 15) - Escala Logarítmica</h2>
+      <h2>{title}</h2>
       
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={700}> 
         <BarChart 
           data={chartData} 
           layout="vertical"
-          margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+          margin={{ top: 5, right: 30, left: 150, bottom: 5 }} 
         >
           <CartesianGrid strokeDasharray="3 3" />
-          
-          {/* *** A MÁGICA ESTÁ AQUI ***
-              1. scale="log": Muda a escala do eixo
-              2. domain: Define o início e o fim (do menor valor ao maior)
-              3. ticks: Força o Recharts a mostrar rótulos legíveis
-          */}
           <XAxis 
             type="number" 
-            scale="log"
-            domain={[minDomain > 1000 ? minDomain * 0.9 : 1000, maxDomain]}
             tickFormatter={formatAsCurrency}
-            ticks={[1000000, 1500000, 2000000, 2500000, 3000000]}
           />
-          
-          <YAxis dataKey="name" type="category" />
+          <YAxis 
+            dataKey="name" 
+            type="category"
+            interval={0}
+          />
           <Tooltip 
-            formatter={(value) => [formatAsCurrency(value), "Total em Cupons"]}
+            formatter={(value) => [formatTooltipCurrency(value), "Total em Cupons"]}
             wrapperStyle={{ 
               backgroundColor: 'var(--color-background-card)', 
               color: 'var(--color-text-primary)' 

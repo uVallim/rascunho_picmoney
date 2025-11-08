@@ -80,7 +80,7 @@ function AgeAdoptionChart({ title, data }) {
   return (
     <div className={styles.chartContainer}>
       <h2>{title}</h2>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={400}>
         <BarChart 
           data={chartData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
