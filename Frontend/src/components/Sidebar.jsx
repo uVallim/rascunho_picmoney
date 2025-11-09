@@ -2,6 +2,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styles from './Sidebar.module.css';
+import evewLogo from '../assets/Evew_logo.png'; // 1. IMPORTE O LOGO
 
 function Sidebar() {
   const getNavLinkClass = ({ isActive }) => {
@@ -10,8 +11,9 @@ function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      {/* --- 1. MUDANÇA DE NOME --- */}
-      <h2>EasyView</h2>
+      {/* 2. SUBSTITUÍMOS O <h2> POR UMA IMAGEM */}
+      <img src={evewLogo} alt="EasyView Logo" className={styles.sidebarLogo} />
+      
       <p className={styles.clientName}>Análise para PicMoney</p>
       
       <ul className={styles.sidebarList}>
@@ -30,9 +32,6 @@ function Sidebar() {
             Visão CTO
           </NavLink>
         </li>
-        
-        {/* --- 2. ADICIONAMOS UM SEPARADOR E O NOVO LINK --- */}
-        <li className={styles.navSeparator}></li>
         <li>
           <NavLink to="/sobre" className={getNavLinkClass}>
             Sobre Nós

@@ -12,7 +12,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-// --- Função para agrupar por idade ---
+// --- Função para agrupar por idade (continua a mesma) ---
 const getAgeGroup = (age) => {
   const ageNum = parseInt(age, 10);
   if (isNaN(ageNum)) return 'N/D'; // Não disponível
@@ -28,7 +28,7 @@ const getAgeGroup = (age) => {
 
 // --- Função para processar os dados ---
 const processDataForChart = (data) => {
-  // 1. Inicializa os contadores para cada faixa etária
+  // 1. Inicializa os contadores
   const ageAdoptionCounts = {
     'Menor de 18': 0,
     '18-25': 0,
@@ -56,11 +56,14 @@ const processDataForChart = (data) => {
     }
   });
 
-  // 6. Formata para o gráfico: [ { name: '18-25', total: 500 }, ... ]
+  // 6. Formata para o gráfico
   const chartData = Object.keys(ageAdoptionCounts).map(groupName => ({
     name: groupName,
     total: ageAdoptionCounts[groupName],
-  }));
+  }))
+  // *** A CORREÇÃO ESTÁ AQUI ***
+  // Filtra o item "N/D" antes de retornar
+  .filter(item => item.name !== 'N/D');
 
   return chartData;
 };

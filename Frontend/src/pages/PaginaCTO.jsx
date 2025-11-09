@@ -4,7 +4,7 @@ import FlowChart from '../components/FlowChart';
 import AdoptionChart from '../components/AdoptionChart';
 import AgeAdoptionChart from '../components/AgeAdoptionChart';
 import GenderAdoptionChart from '../components/GenderAdoptionChart';
-import DeviceTypeChart from '../components/DeviceTypeChart'; // 1. IMPORTE O NOVO GRÁFICO
+import DeviceTypeChart from '../components/DeviceTypeChart';
 import styles from './Dashboard.module.css'; 
 
 function PaginaCTO() {
@@ -32,9 +32,23 @@ function PaginaCTO() {
       });
   }, []);
 
-  // --- A lógica de Renderização (Loading, Error) continua a mesma ---
-  if (loading) { /* ... */ }
-  if (error) { /* ... */ }
+  // --- 1. BLOCOS DE LOADING E ERROR CORRIGIDOS ---
+  if (loading) {
+    return (
+      <div className={styles.dashboardContent}>
+        <h1>Visão do CTO</h1>
+        <p>Carregando dados de tráfego e engajamento...</p>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className={styles.dashboardContent}>
+        <h1>Visão do CTO</h1>
+        <p style={{ color: 'red' }}>Erro: {error}</p>
+      </div>
+    );
+  }
 
   // --- Renderização de Sucesso ---
   return (
@@ -66,7 +80,7 @@ function PaginaCTO() {
         />
       </div>
       
-      {/* 2. ADICIONE O NOVO GRÁFICO DE DISPOSITIVOS AQUI */}
+      {/* Gráfico de Dispositivos (Market Share) */}
       <DeviceTypeChart
         title="Market Share de Dispositivos (Pedestres)"
         data={pedestresData}
@@ -76,4 +90,5 @@ function PaginaCTO() {
   );
 }
 
-export default DeviceTypeChart; 
+// *** 2. EXPORT CORRIGIDO ***
+export default PaginaCTO;

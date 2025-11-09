@@ -6,7 +6,6 @@ import StoreTypeChart from '../components/StoreTypeChart';
 import NeighborhoodChart from '../components/NeighborhoodChart';
 import DayOfWeekChart from '../components/DayOfWeekChart';
 import PeriodOfDayChart from '../components/PeriodOfDayChart';
-import CouponTypeChart from '../components/CouponTypeChart'; // 1. IMPORTE O NOVO GRÁFICO
 import styles from './Dashboard.module.css'; 
 
 function PaginaCEO() {
@@ -47,9 +46,24 @@ function PaginaCEO() {
       });
   }, []);
 
-  // --- A lógica de Renderização (Loading, Error) continua a mesma ---
-  if (loading) { /* ... */ }
-  if (error) { /* ... */ }
+  // --- *** CORREÇÃO DO LOADING SCREEN *** ---
+  // (Estes blocos agora estão preenchidos)
+  if (loading) {
+    return (
+      <div className={styles.dashboardContent}>
+        <h1>Visão do CEO</h1>
+        <p>Carregando dados financeiros e de clientes...</p>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className={styles.dashboardContent}>
+        <h1>Visão do CEO</h1>
+        <p style={{ color: 'red' }}>Erro: {error}</p>
+      </div>
+    );
+  }
 
   // --- Renderização de Sucesso ---
   return (
@@ -80,12 +94,6 @@ function PaginaCEO() {
           data={cuponsData}
         />
       </div>
-      
-      {/* 2. ADICIONE O GRÁFICO DE BARRAS DUPLAS AQUI */}
-      <CouponTypeChart
-        title="Receita Bruta vs. Líquida por Tipo de Cupom"
-        data={cuponsData}
-      />
       
       {/* Gráfico de Bairros (continua aqui) */}
       <NeighborhoodChart 
